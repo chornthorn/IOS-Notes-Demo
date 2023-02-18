@@ -9,28 +9,80 @@ import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+    
+    var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        var mainViewController: Any
+        
+        
+        let userDefault = UserDefaults.standard
+        let isAuthenticated = userDefault.string(forKey: USER_ID_KEY)
+        
+        if isAuthenticated != nil && isAuthenticated != "" {
+            mainViewController = tabbarView()
+        } else {
+            mainViewController = LoginViewController()
+        }
+        
+        let navController = UINavigationController(
+            rootViewController: mainViewController as! UIViewController)
+        
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.rootViewController = navController
+        window?.makeKeyAndVisible()
+        
         return true
     }
-
-    // MARK: UISceneSession Lifecycle
-
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    
+    // tabbar view
+    func tabbarView() -> UITabBarController {
+        
+        let homeViewController = HomeViewController()
+        let homeNavigationController = UINavigationController(rootViewController: homeViewController)
+        homeNavigationController.tabBarItem = UITabBarItem(
+            title: "Home", image: UIImage(systemName: "house"), tag: 0
+        )
+        
+        let profileViewController = ProfileViewController()
+        let profileNavigationController = UINavigationController(rootViewController: profileViewController)
+        profileNavigationController.tabBarItem = UITabBarItem(
+            title: "Profile", image: UIImage(systemName: "person.crop.circle"), tag: 1
+        )
+        
+        let settingsViewController  = SettingsViewController()
+        let settingsNavigationController = UINavigationController(rootViewController: settingsViewController)
+        settingsNavigationController.tabBarItem = UITabBarItem(
+            title: "Settings", image: UIImage(systemName: "gear"), tag: 2
+        )
+        
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = [
+            homeNavigationController,
+            profileNavigationController,
+            settingsNavigationController
+        ]
+        
+        return tabBarController
     }
-
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    
+    // static get tabbarView
+    static func getTabbarView() -> UITabBarController {
+        return (UIApplication.shared.delegate as! AppDelegate).tabbarView()
     }
-
-
+    
+    static func animateTabBar() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.window?.rootViewController = getTabbarView()
+        UIView.transition(
+            with: appDelegate.window!,
+            duration: 0.5,
+            options: .transitionCrossDissolve,
+            animations: nil,
+            completion: nil
+        )
+    }
+    
 }
 
